@@ -4,6 +4,7 @@ import requests
 import json
 from sendEmail import errorEmail
 from define import *
+import datetime
 
 class Stock:
     def __init__(self,name,code):
@@ -21,21 +22,23 @@ class Stock:
         res = r.text.split(',')
         print(json.dumps(res))
         if len(res) > 1:
-            name, now = res[0][slice_num:], res[value_num]
-        return name, float(now)
+            name, nowPrice = res[0][slice_num:], res[value_num]
+        return name.encode('utf-8'), float(nowPrice)
+
 
     def fitPrice(self, rule):
         name,price = self.__getPrice()
         if(name!=self.name):
-            msg = '股票名字不符，code: %s, local_name: %s, name: %s 。' % (self.code, self.name, name.encode('utf-8'))
+            msg = '股票名字不符，code: %s, local_name: %s, name: %s 。' % (self.code, self.name, name)
             errorEmail(msg)
             print(msg)
         else:
             print('name ok!')
+        nowtime = datetime.datetime.now()
         if(rule.high_threshold and price > rule.high_threshold):
-            return {'code': CODE_SEND_EMAIL, 'msg': '高价提醒'}
+            return {'code': CODE_SEND_EMAIL, 'msg': '高价提醒, %s, price: %.3f, time:%s' % (name, price, nowtime)}
         elif(rule.low_threshold and price < rule.low_threshold):
-            return {'code': CODE_SEND_EMAIL, 'msg': '低价提醒'}
+            return {'code': CODE_SEND_EMAIL, 'msg': '低价提醒,name: %s, price: %.3f, time:%s' % (name, price, nowtime)}
         else:
             return {'code': CODE_NOT_SEND_EMAIL, 'msg': '无提醒'}
 
