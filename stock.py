@@ -20,7 +20,7 @@ class Stock:
             value_num = 1
         r = requests.get("http://hq.sinajs.cn/list=%s" % (self.code,))
         res = r.text.split(',')
-        print(json.dumps(res))
+        print(json.dumps(res, ensure_ascii=False))
         if len(res) > 1:
             name, nowPrice = res[0][slice_num:], res[value_num]
         return name.encode('utf-8'), float(nowPrice)
@@ -31,7 +31,7 @@ class Stock:
         if(name!=self.name):
             msg = '股票名字不符，code: %s, local_name: %s, name: %s 。' % (self.code, self.name, name)
             errorEmail(msg)
-            print(msg)
+            print(json.dumps(msg, ensure_ascii=False))
         else:
             print('name ok!')
         nowtime = datetime.datetime.now()
